@@ -39,5 +39,18 @@ public class Registration {
 	public void setEvent(Event event) {
 		this.event = event;
 	}
+	
+//	private Promoter promoter;
+//	
+//	@ManyToOne(optional = false)
+//	public Promoter getPromoter () {
+//		return this.promoter;
+//	}
+//	
+//	public void setPromoter (Promoter promoter) {
+//		this.promoter = promoter;
+//	}
+
+	
 
 }

@@ -93,7 +93,9 @@ public class TestPromoterRole {
             Promoter promoter = service.createPromoter("validname");
             Event event = PromoterRoleTestData.setupEvent(service, "eventname");
             service.promotesEvent(promoter, event);
-            assertEquals(promoter.getPromotes().size(), 1);
+            
+            List<Promoter> promoters = service.getPromotes();
+            assertEquals(promoters.size(), 1);
         } catch (IllegalArgumentException e) {
             fail();
         }

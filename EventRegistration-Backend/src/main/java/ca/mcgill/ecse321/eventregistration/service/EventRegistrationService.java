@@ -23,6 +23,8 @@ public class EventRegistrationService {
 	private PersonRepository personRepository;
 	@Autowired
 	private RegistrationRepository registrationRepository;
+	@Autowired
+	private PromoterRepository promoterRepository;
 
 	@Transactional
 	public Person createPerson(String name) {
@@ -177,7 +179,85 @@ public class EventRegistrationService {
 		}
 		return eventsAttendedByPerson;
 	}
+	
+	// start implementation of service methods
+	
+	// TO DO: JAVADOC
+	@Transactional
+	public Promoter createPromoter (String name) {
+		if (name == null || name.trim().length() == 0) {
+			throw new IllegalArgumentException("Promoter name cannot be empty.");
+		} else if (promoterRepository.existsById(name)) {
+			throw new IllegalArgumentException("Promoter has already been created.");
+		}
+		Promoter promoter = new Promoter();
+		promoter.setName(name);
+		promoterRepository.save(promoter);
+		return promoter;
+	}
+	
+	// TO DO: JAVADOC
+	@Transactional
+	public List<Promoter> getAllPromoters () {
+		return toList(promoterRepository.findAll());
+	}
+	
+	@Transactional 
+	public List<Promoter> getPromotes () {
+		return toList(promoterRepository.findAll());
+	}
+	
+	// TO DO: JAVADOC
+	@Transactional
+	public Promoter getPromoter (String name) {
+		if (name == null || name.trim().length() == 0) {
+			throw new IllegalArgumentException("Promoter name cannot be empty");
+		}
+		Promoter promoter = promoterRepository.findByName(name);
+		return promoter;
+	}
+	
+	@Transactional 
+	public Promoter promotesEvent (Promoter promoter, Event event) {
+		String[] errorMessages = { "Promoter needs to be selected for registration.", "Promoter does not exist.",
+				"Event needs to be selected for registration.", "The event does not exist.", "The promoter has already registered in the event."};
+		String error = "";
+		// no promoter selected
+		if (promoter == null) {
+			// throw error
+			error = error + errorMessages[0];
+			// promoter that does not exist
+		} else if (!promoterRepository.existsById(promoter.getName())) {
+			error = error + errorMessages[1];
+		}
+		// check if event has been selected and then check if it exists
+		if (event == null) {
+			error = error + errorMessages[2];
+		} else if (!eventRepository.existsById(event.getName())) {
+			error = error + errorMessages[3];
+		}
+		// check if promoter has registered or have promoted the event
+		if (promoterRepository.existsByPromoterAndEvent(promoter, event)) {
+			error = error + errorMessages[4];
+		}
+		
+		
+		error = error.trim();
+		if (error.length() > 0) {
+			throw new IllegalArgumentException(error);
+		}
 
+		Promoter newPromoter = new Promoter();
+		newPromoter.setId(promoter.getName().hashCode() * event.getName().hashCode());
+		newPromoter.setPromoter(promoter);
+		newPromoter.setEvent(event);
+
+		promoterRepository.save(newPromoter);
+
+		return newPromoter;
+	}
+	
+	// End of implemented methods
 	private <T> List<T> toList(Iterable<T> iterable) {
 		List<T> resultList = new ArrayList<T>();
 		for (T t : iterable) {
