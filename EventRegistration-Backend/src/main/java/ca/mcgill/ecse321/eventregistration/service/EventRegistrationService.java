@@ -3,6 +3,7 @@ package ca.mcgill.ecse321.eventregistration.service;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -186,9 +187,9 @@ public class EventRegistrationService {
 	@Transactional
 	public Promoter createPromoter (String name) {
 		if (name == null || name.trim().length() == 0) {
-			throw new IllegalArgumentException("Promoter name cannot be empty.");
+			throw new IllegalArgumentException("Promoter name cannot be empty!");
 		} else if (promoterRepository.existsById(name)) {
-			throw new IllegalArgumentException("Promoter has already been created.");
+			throw new IllegalArgumentException("Promoter has already been created!");
 		}
 		Promoter promoter = new Promoter();
 		promoter.setName(name);
@@ -202,44 +203,50 @@ public class EventRegistrationService {
 		return toList(promoterRepository.findAll());
 	}
 	
-	@Transactional 
-	public List<Promoter> getPromotes () {
-		return toList(promoterRepository.findAll());
-	}
-	
 	// TO DO: JAVADOC
 	@Transactional
 	public Promoter getPromoter (String name) {
 		if (name == null || name.trim().length() == 0) {
-			throw new IllegalArgumentException("Promoter name cannot be empty");
+			throw new IllegalArgumentException("Person name cannot be empty!");
 		}
+		
 		Promoter promoter = promoterRepository.findByName(name);
+		
 		return promoter;
 	}
 	
 	@Transactional 
-	public Promoter promotesEvent (Promoter promoter, Event event) {
-		String[] errorMessages = { "Promoter needs to be selected for registration.", "Promoter does not exist.",
-				"Event needs to be selected for registration.", "The event does not exist.", "The promoter has already registered in the event."};
+	public void promotesEvent (Promoter promoter, Event event) {
+//		String[] errorMessages = { "Promoter needs to be selected for promotes!", "Promoter does not exist!",
+//				"Event needs to be selected for registration.", "Event does not exist!", "Promoter has already registered in the event!"};
 		String error = "";
 		// no promoter selected
 		if (promoter == null) {
 			// throw error
-			error = error + errorMessages[0];
-			// promoter that does not exist
-		} else if (!promoterRepository.existsById(promoter.getName())) {
-			error = error + errorMessages[1];
+			error = error + "Promoter needs to be selected for promotes!";
+		} else if (promoter.getPromotes() == null) {
+			Set<Event> promotedEvents = new HashSet<Event>();
+			promotedEvents.add(event);
+			promoter.setPromotes(promotedEvents);
 		}
+		if(event == null) {
+			 error = error + "Event needs to be selected!";
+		 }
+//			// promoter that does not exist
+//		} else if (!promoterRepository.existsById(promoter.getName())) {
+//			error = error + "Person does not exist!";
+//		}
 		// check if event has been selected and then check if it exists
-		if (event == null) {
-			error = error + errorMessages[2];
-		} else if (!eventRepository.existsById(event.getName())) {
-			error = error + errorMessages[3];
+//		if (event == null) {
+//			error = error + "Event needs to be selected for registration!";
+		 if (!eventRepository.existsById(event.getName())) {
+			error = error + "Event does not exist!";
 		}
-		// check if promoter has registered or have promoted the event
-		if (promoterRepository.existsByPromoterAndEvent(promoter, event)) {
-			error = error + errorMessages[4];
-		}
+		 
+//		// check if promoter has registered or have promoted the event
+//		if (promoterRepository.existsByPromoterAndEvent(promoter, event)) {
+//			error = error + "Promoter needs to be selected for promotes!";
+//		}
 		
 		
 		error = error.trim();
@@ -247,14 +254,8 @@ public class EventRegistrationService {
 			throw new IllegalArgumentException(error);
 		}
 
-		Promoter newPromoter = new Promoter();
-		newPromoter.setId(promoter.getName().hashCode() * event.getName().hashCode());
-		newPromoter.setPromoter(promoter);
-		newPromoter.setEvent(event);
+		promoterRepository.save(promoter);
 
-		promoterRepository.save(newPromoter);
-
-		return newPromoter;
 	}
 	
 	// End of implemented methods

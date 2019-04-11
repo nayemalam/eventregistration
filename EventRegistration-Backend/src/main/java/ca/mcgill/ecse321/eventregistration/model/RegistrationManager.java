@@ -15,7 +15,7 @@ public class RegistrationManager {
 	public Set<Person> getPersons() {
 		return this.persons;
 	}
-
+	
 	public void setPersons(Set<Person> personss) {
 		this.persons = personss;
 	}

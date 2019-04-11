@@ -44,6 +44,7 @@ public class TestPromoterRole {
     public void test_01_CreatePromoter() {
         try {
             String name = "validname";
+            System.out.println("I AM HERE");
             service.createPromoter(name);
             List<Promoter> promoters = service.getAllPromoters();
             assertEquals(promoters.size(), 1);
@@ -51,7 +52,7 @@ public class TestPromoterRole {
             fail();
         }
     }
-
+    
     @Test
     public void test_02_CreatePromoterWithEmptyName() {
         try {
@@ -94,13 +95,14 @@ public class TestPromoterRole {
             Event event = PromoterRoleTestData.setupEvent(service, "eventname");
             service.promotesEvent(promoter, event);
             
-            List<Promoter> promoters = service.getPromotes();
-            assertEquals(promoters.size(), 1);
+//            List<Promoter> promoters = service.getPromotes();
+//            assertEquals(promoters.size(), 1);
+            assertEquals(promoter.getPromotes().size(), 1);
         } catch (IllegalArgumentException e) {
             fail();
         }
     }
-
+    
     @Test
     public void test_06_PromotesEventWithNullPromoter() {
         try {
