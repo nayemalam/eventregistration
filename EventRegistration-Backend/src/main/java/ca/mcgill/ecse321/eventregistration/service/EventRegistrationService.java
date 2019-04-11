@@ -1,7 +1,10 @@
 package ca.mcgill.ecse321.eventregistration.service;
 
+import static org.mockito.Mockito.after;
+
 import java.sql.Date;
 import java.sql.Time;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -11,6 +14,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import ca.mcgill.ecse321.eventregistration.dao.*;
 import ca.mcgill.ecse321.eventregistration.model.*;
@@ -26,6 +30,8 @@ public class EventRegistrationService {
 	private RegistrationRepository registrationRepository;
 	@Autowired
 	private PromoterRepository promoterRepository;
+	@Autowired
+	private CircusRepository circusRepository;
 
 	@Transactional
 	public Person createPerson(String name) {
@@ -183,6 +189,12 @@ public class EventRegistrationService {
 	
 	// start implementation of service methods
 	
+	/*
+	 * ============================
+	 * PROMOTER SERVICE METHODS
+	 * ============================
+	 */	
+	
 	// TO DO: JAVADOC
 	@Transactional
 	public Promoter createPromoter (String name) {
@@ -257,6 +269,58 @@ public class EventRegistrationService {
 		promoterRepository.save(promoter);
 
 	}
+	
+	/*
+	 * ============================
+	 * END PROMOTER SERVICE METHODS
+	 * ============================
+	 */	
+	
+	/*
+	 * ============================
+	 *  CIRCUS SERVICE METHODS
+	 * ============================
+	 */	
+	@Transactional
+	public List<Circus> getAllCircuses() {
+		return toList(circusRepository.findAll());
+	}
+	
+	@Transactional
+	public void createCircus(String name, Date circusDate, Time startTime, Time endTime, String company) {
+		if (name == null || name.trim().length() == 0) {
+			throw new IllegalArgumentException("Event name cannot be empty!");
+		}
+		if (circusDate == null) {
+			throw new IllegalArgumentException("Event date cannot be empty!");
+		} 
+		if (startTime == null) {
+			throw new IllegalArgumentException("Event start time cannot be empty!");
+		}
+		if (endTime == null) {
+			throw new IllegalArgumentException("Event end time cannot be empty!");
+		} else if (endTime.before(startTime)) {
+			throw new IllegalArgumentException("Event end time cannot be before event start time!");
+		}
+		if (company == null || company.trim().length() == 0) {
+			throw new IllegalArgumentException("Circus company cannot be empty!");
+		} 
+		
+		Circus event = new Circus();
+		event.setName(name);
+		event.setDate(circusDate);
+		event.setStartTime(startTime); //convert Time to LocalTime
+		event.setEndTime(endTime);
+		event.setCompany(company);
+		
+		circusRepository.save(event);
+	}
+	
+	/*
+	 * ============================
+	 * END CIRCUS SERVICE METHODS
+	 * ============================
+	 */	
 	
 	// End of implemented methods
 	private <T> List<T> toList(Iterable<T> iterable) {

@@ -26,7 +26,7 @@ public class TestCircus {
 
     @Autowired
     private EventRegistrationService service;
-
+    
     @Autowired
     private CircusRepository circusRepository;
 
@@ -73,7 +73,7 @@ public class TestCircus {
     @Test
     public void test_02_CreateCircusNull() {
         assertEquals(0, service.getAllRegistrations().size());
-
+        
         String name = null;
         String company = null;
         Date circusDate = null;
