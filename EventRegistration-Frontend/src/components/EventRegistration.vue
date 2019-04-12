@@ -5,6 +5,8 @@
       <tr>
         <th>Name</th>
         <th>Events</th>
+        <th>Payment ID</th>
+        <th>Amount($)</th>
       </tr>
       <tr v-for="(person, i) in persons" v-bind:key="`person-${i}`">
         <td>{{person.name}}</td>
@@ -15,16 +17,24 @@
             </li>
           </ul>
         </td>
+        <td></td>
+        <td></td>
       </tr>
       <tr>
         <td>
           <input id="create_person_person_name" type="text" v-model="newPerson" placeholder="Person Name">
         </td>
         <td>
+          <select id='registration-person-select' v-model="selectedPerson">
+            <option v-bind:active="!newPerson" value="">Person</option>
+            <option v-bind:active="!newPromoter">Promoter</option>
+
+          </select>
+        </td>
+        <td>
           <button id="create_person_button" v-bind:disabled="!newPerson" @click="createPerson(personType, newPerson)">Create Person</button>
         </td>
-        <td></td>
-        <td></td>
+       
       </tr>
     </table>
     <span v-if="errorPerson" style="color:red">Error: {{errorPerson}}</span>
@@ -81,6 +91,50 @@
     <br/>
     <span v-if="errorRegistration" style="color:red">Error: {{errorRegistration}}</span>
     <hr>
+    <h2>Assign Promoters</h2>
+    <label>Promoter:
+      <select id='assign-selected-promoter' v-model="selectedPromoter">
+        <option disabled value="">Please select one</option>
+        <option v-for="(promoter, i) in promoters" v-bind:key="`promoter-${i}`">{{promoter.name}}</option>
+      </select>
+    </label>
+    <label>Event:
+      <select id='assign-selected-event-promoter' v-model="selectedEvent">
+        <option disabled value="">Please select one</option>
+        <option v-for="(event, i) in events" v-bind:key="`event-${i}`">{{event.name}}</option>
+      </select>
+    </label>
+    <button id='assign-button-promoter' v-bind:disabled="!selectedPromoter || !selectedEvent" @click="assignEvent(selectedPromoter, selectedEvent)">Assign</button>
+    <br/>
+    <span v-if="errorAssignation" style="color:red">Error: {{errorAssignation}}</span>
+    <hr>
+    <h2>Pay for Registration with ApplePay</h2>
+    <label>Person:
+      <select id='assign-selected-promoter' v-model="selectedPromoter">
+        <option disabled value="">Please select one</option>
+        <option v-for="(promoter, i) in promoters" v-bind:key="`promoter-${i}`">{{promoter.name}}</option>
+      </select>
+    </label>
+    <label>Event:
+      <select id='assign-selected-event-promoter' v-model="selectedEvent">
+        <option disabled value="">Please select one</option>
+        <option v-for="(event, i) in events" v-bind:key="`event-${i}`">{{event.name}}</option>
+      </select>
+    </label>
+    <br/>
+    <label>Device Id:
+      <input id="event-name-input" type="text" v-model="newEvent.name" placeholder="ex. 1234-ABCD">
+    </label>
+     <label>Amount:
+      <select id='assign-selected-event-promoter' v-model="selectedEvent">
+        <!-- <option disabled value="">Please select one</option> -->
+        <option v-for="(event, i) in events" v-bind:key="`event-${i}`">{{event.name}}</option>
+      </select>
+    </label>
+    <br/>
+    <button id='assign-button-promoter' v-bind:disabled="!selectedPromoter || !selectedEvent" @click="assignEvent(selectedPromoter, selectedEvent)">Make Payment</button>
+    <br/>
+    <span v-if="errorAssignation" style="color:red">Error: {{errorAssignation}}</span>
   </div>
 </template>
 

@@ -24,9 +24,12 @@ export default {
   data() {
     return {
       persons: [],
+      promoters: [],
       events: [],
       newPerson: '',
+      newPromoter: '',
       personType: 'Person',
+      promoterType: 'Promoter',
       newEvent: {
         name: '',
         date: '2017-12-08',
@@ -34,10 +37,13 @@ export default {
         endTime: '11:00'
       },
       selectedPerson: '',
+      selectedPromoter: '',
       selectedEvent: '',
       errorPerson: '',
+      errorPromoter: '',
       errorEvent: '',
       errorRegistration: '',
+      errorAssignation: '',
       response: [],
     }
   },
@@ -50,12 +56,19 @@ export default {
     })
     .catch(e => {this.errorPerson = e});
 
+    AXIOS.get('/promoters')
+    .then(response => {
+      this.promoters = response.data;
+      this.promoters.forEach(promoter => this.getAssignations(promoter.name))
+    })
+    .catch(e => {this.errorPromoter = e});
+
     AXIOS.get('/events').then(response => {this.events = response.data}).catch(e => {this.errorEvent = e});
+
 
   },
 
   methods: {
-
     createPerson: function (personType, personName) {
       AXIOS.post('/persons/'.concat(personName), {}, {})
       .then(response => {
@@ -66,6 +79,20 @@ export default {
       .catch(e => {
         e = e.response.data.message ? e.response.data.message : e;
         this.errorPerson = e;
+        console.log(e);
+      });
+    },
+
+    createPromoter: function (promoterType, promoterName) {
+      AXIOS.post('/promoters/'.concat(promoterName), {}, {})
+      .then(response => {
+        this.promoters.push(response.data);
+        this.errorPromoter = '';
+        this.newPromoter = '';
+      })
+      .catch(e => {
+        e = e.response.data.message ? e.response.data.message : e;
+        this.errorPromoter = e;
         console.log(e);
       });
     },
@@ -104,6 +131,28 @@ export default {
       .catch(e => {
         e = e.response.data.message ? e.response.data.message : e;
         this.errorRegistration = e;
+        console.log(e);
+      });
+    },
+
+    assignEvent: function (promoterName, eventName) {
+      let event = this.events.find(x => x.name === eventName);
+      let promoter = this.promoters.find(x => x.name === promoterName);
+      let params = {
+        promoter: promoter.name,
+        event: event.name
+      };
+
+      AXIOS.post('/assign', {}, {params: params})
+      .then(response => {
+        promoter.eventsAttended.push(event)
+        this.selectedPromoter = '';
+        this.selectedEvent = '';
+        this.errorAssignation = '';
+      })
+      .catch(e => {
+        e = e.response.data.message ? e.response.data.message : e;
+        this.errorAssignation = e;
         console.log(e);
       });
     },

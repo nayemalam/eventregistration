@@ -38,7 +38,14 @@ public class EventRegistrationRestController {
 		Person person = service.createPerson(name);
 		return convertToDto(person);
 	}
-
+	
+	@PostMapping(value = { "/promoters/{name}", "/promoters/{name}/" })
+	public PromoterDto createPromoter(@PathVariable("name") String name) throws IllegalArgumentException {
+		// @formatter:on
+		Promoter promoter = service.createPromoter(name);
+		return convertToDto(promoter);
+	}
+	
 	// @formatter:off
 	// Example REST call:
 	// http://localhost:8080/events/testevent?date=2013-10-23&startTime=00:00&endTime=23:59
@@ -76,6 +83,20 @@ public class EventRegistrationRestController {
 		return convertToDto(r, p, e);
 	}
 
+	@PostMapping(value = { "/assign", "/assign/" })
+	public RegistrationDto registerPromoterForEvent(@RequestParam(name = "promoter") PromoterDto pDto,
+			@RequestParam(name = "event") EventDto eDto) throws IllegalArgumentException {
+		// @formatter:on
+
+		// Both the promoter and the event are identified by their names
+		Promoter p = service.getPromoter(pDto.getName());
+		Event e = service.getEvent(eDto.getName());
+
+		Registration r = service.register(p, e);
+		return convertToDto(r, p, e);
+	}
+	
+
 	// GET Mappings
 
 	@GetMapping(value = { "/events", "/events/" })
@@ -95,7 +116,7 @@ public class EventRegistrationRestController {
 		}
 		return circusDtos;
 	}
-
+	
 	// Example REST call:
 	// http://localhost:8088/events/person/JohnDoe
 	@GetMapping(value = { "/events/person/{name}", "/events/person/{name}/" })
@@ -108,7 +129,12 @@ public class EventRegistrationRestController {
 	public PersonDto getPersonByName(@PathVariable("name") String name) throws IllegalArgumentException {
 		return convertToDto(service.getPerson(name));
 	}
-
+	
+	@GetMapping(value = { "/promoters/{name}", "/promoters/{name}/" })
+	public PromoterDto getPromoterByName(@PathVariable("name") String name) throws IllegalArgumentException {
+		return convertToDto(service.getPromoter(name));
+	}
+	
 	@GetMapping(value = { "/registrations", "/registrations/" })
 	public RegistrationDto getRegistration(@RequestParam(name = "person") PersonDto pDto,
 			@RequestParam(name = "event") EventDto eDto) throws IllegalArgumentException {
@@ -117,6 +143,17 @@ public class EventRegistrationRestController {
 		Event e = service.getEvent(eDto.getName());
 
 		Registration r = service.getRegistrationByPersonAndEvent(p, e);
+		return convertToDtoWithoutPerson(r);
+	}
+	
+	@GetMapping(value = { "/assignations", "/assignations/" })
+	public RegistrationDto getRegistration(@RequestParam(name = "promoter") PromoterDto pDto,
+			@RequestParam(name = "event") EventDto eDto) throws IllegalArgumentException {
+		// Both the person and the event are identified by their names
+		Promoter p = service.getPromoter(pDto.getName());
+		Event e = service.getEvent(eDto.getName());
+
+		Registration r = service.getRegistrationByPromoterAndEvent(p, e);
 		return convertToDtoWithoutPerson(r);
 	}
 
@@ -128,6 +165,14 @@ public class EventRegistrationRestController {
 
 		return createRegistrationDtosForPerson(p);
 	}
+	
+	@GetMapping(value = { "/assignations/promoter/{name}", "/assignations/promoter/{name}/" })
+	public List<RegistrationDto> getRegistrationsForPromoter(@PathVariable("name") PromoterDto pDto)
+			throws IllegalArgumentException {
+		// Both the promoter and the event are identified by their names
+		Promoter p = service.getPromoter(pDto.getName());
+		return createRegistrationDtosForPromoter(p);
+	}
 
 	@GetMapping(value = { "/persons", "/persons/" })
 	public List<PersonDto> getAllPersons() {
@@ -137,11 +182,21 @@ public class EventRegistrationRestController {
 		}
 		return persons;
 	}
+	
+	@GetMapping(value = { "/promoters", "/promoters/" })
+	public List<PromoterDto> getAllPromoters() {
+		List<PromoterDto> promoters = new ArrayList<>();
+		for (Promoter promoter : service.getAllPromoters()) {
+			promoters.add(convertToDto(promoter));
+		}
+		return promoters;
+	}
 
 	@GetMapping(value = { "/events/{name}", "/events/{name}/" })
 	public EventDto getEventByName(@PathVariable("name") String name) throws IllegalArgumentException {
 		return convertToDto(service.getEvent(name));
 	}
+	
 
 	// Model - DTO conversion methods (not part of the API)
 
@@ -160,6 +215,16 @@ public class EventRegistrationRestController {
 		CircusDto eventDto = new CircusDto(e.getName(), e.getDate(), e.getStartTime(), e.getEndTime(), e.getCompany());
 		return eventDto;
 	}
+	
+	private PromoterDto convertToDto(Promoter p) {
+		if (p == null) {
+			throw new IllegalArgumentException("There is no such Promoter!");
+		}
+		PromoterDto promoterDto = new PromoterDto(p.getName());
+		promoterDto.setEventsAttended(createAttendedEventDtosForPromoter(p));
+		promoterDto.setEventsPromoted(createPromotedEventDtosForPromoter(p));
+		return promoterDto;
+	}
 
 	private PersonDto convertToDto(Person p) {
 		if (p == null) {
@@ -176,6 +241,7 @@ public class EventRegistrationRestController {
 		PersonDto pDto = convertToDto(p);
 		return new RegistrationDto(pDto, eDto);
 	}
+	
 
 	private RegistrationDto convertToDto(Registration r) {
 		EventDto eDto = convertToDto(r.getEvent());
@@ -203,6 +269,24 @@ public class EventRegistrationRestController {
 	}
 
 	// Other extracted methods (not part of the API)
+	
+	private List<EventDto> createAttendedEventDtosForPromoter(Promoter p) {
+		List<Event> eventsForPromoter = service.getEventsAttendedByPromoter(p);
+		List<EventDto> events = new ArrayList<>();
+		for (Event event : eventsForPromoter) {
+			events.add(convertToDto(event));
+		}
+		return events;
+	}
+	
+	private List<EventDto> createPromotedEventDtosForPromoter(Promoter p) {
+		List<Event> eventsForPromoter = service.getEventsPromotedByPromoter(p);
+		List<EventDto> events = new ArrayList<>();
+		for (Event event : eventsForPromoter) {
+			events.add(convertToDto(event));
+		}
+		return events;
+	}
 
 	private List<EventDto> createAttendedEventDtosForPerson(Person p) {
 		List<Event> eventsForPerson = service.getEventsAttendedByPerson(p);
@@ -217,6 +301,15 @@ public class EventRegistrationRestController {
 		List<Registration> registrationsForPerson = service.getRegistrationsForPerson(p);
 		List<RegistrationDto> registrations = new ArrayList<RegistrationDto>();
 		for (Registration r : registrationsForPerson) {
+			registrations.add(convertToDtoWithoutPerson(r));
+		}
+		return registrations;
+	}
+	
+	private List<RegistrationDto> createRegistrationDtosForPromoter(Promoter p) {
+		List<Registration> registrationsForPromoter = service.getRegistrationsForPromoter(p);
+		List<RegistrationDto> registrations = new ArrayList<RegistrationDto>();
+		for (Registration r : registrationsForPromoter) {
 			registrations.add(convertToDtoWithoutPerson(r));
 		}
 		return registrations;

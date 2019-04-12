@@ -13,7 +13,7 @@ public class CircusDto {
 
 	public CircusDto() {
 	}
-
+	
 	public CircusDto(String name, String company) {
 		this(name, Date.valueOf("1971-01-01"), Time.valueOf("00:00:00"), Time.valueOf("23:59:59"), company);
 	}

@@ -32,7 +32,7 @@ public class ApplePay {
 		return this.amount;
 	}
 
-	
+
 	
 //	private int id;
 //

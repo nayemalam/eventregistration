@@ -4,6 +4,7 @@ public class RegistrationDto {
 
 	private PersonDto person;
 	private EventDto event;
+	private CircusDto circus;
 
 	public RegistrationDto() {
 	}
@@ -11,6 +12,11 @@ public class RegistrationDto {
 	public RegistrationDto(PersonDto person, EventDto event) {
 		this.person = person;
 		this.event = event;
+	}
+	
+	public RegistrationDto(PersonDto person, CircusDto circus) {
+		this.person = person;
+		this.circus = circus;
 	}
 
 	public EventDto getEvent() {

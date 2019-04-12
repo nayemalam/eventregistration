@@ -56,6 +56,7 @@ public class EventRegistrationService {
 		return person;
 	}
 
+
 	@Transactional
 	public List<Person> getAllPersons() {
 		return toList(personRepository.findAll());
@@ -270,6 +271,46 @@ public class EventRegistrationService {
 
 	}
 	
+	@Transactional
+	public List<Event> getEventsAttendedByPromoter(Promoter promoter) {
+		if (promoter == null) {
+			throw new IllegalArgumentException("Promoter cannot be null!");
+		}
+		List<Event> eventsAttendedByPromoter = new ArrayList<>();
+		for (Registration r : registrationRepository.findByPerson(promoter)) {
+			eventsAttendedByPromoter.add(r.getEvent());
+		}
+		return eventsAttendedByPromoter;
+	}
+	
+	@Transactional
+	public List<Event> getEventsPromotedByPromoter(Promoter promoter) {
+		if (promoter == null) {
+			throw new IllegalArgumentException("Promoter cannot be null!");
+		}
+		List<Event> eventsPromotedByPromoter = new ArrayList<>();
+		for (Registration r : registrationRepository.findByPerson(promoter)) {
+			eventsPromotedByPromoter.add(r.getEvent());
+		}
+		return eventsPromotedByPromoter;
+	}
+	
+	@Transactional
+	public Registration getRegistrationByPromoterAndEvent(Promoter promoter, Event event) {
+		if (promoter == null || event == null) {
+			throw new IllegalArgumentException("Promoter or Event cannot be null!");
+		}
+
+		return registrationRepository.findByPersonAndEvent(promoter, event);
+	}
+	@Transactional
+	public List<Registration> getRegistrationsForPromoter(Promoter promoter){
+		if(promoter == null) {
+			throw new IllegalArgumentException("Promoter cannot be null!");
+		}
+		return registrationRepository.findByPerson(promoter);
+	}
+	
 	/*
 	 * ============================
 	 * END PROMOTER SERVICE METHODS
@@ -352,19 +393,23 @@ public class EventRegistrationService {
 		
 //		while (id!=null) {
 		if (id != null) {
-//			if ((id.contains("")) || id.contains(" ")) {
-//				String fullId = id.trim();
-//				int mid = fullId.length() / 2; 
-//				String newId = fullId.substring(0, mid) + "-" + fullId.substring(mid);
-//				parts = newId.split("-");
-//				numbers = parts[0]; 
-//				letters = parts[1];
-//			}
 			if (id.contains("-")) {
 				parts = id.split("-");
 				numbers = parts[0];
 				letters = parts[1];
-			} 
+			} else 	if (id.contains(" ") || id.contains("")) {
+				String fullId = id.trim();
+				int mid = fullId.length() / 2; 
+				String firstHalf = fullId.substring(0, mid);
+				String secondHalf = fullId.substring(mid);
+				if (isInteger(firstHalf) ) {
+					numbers = firstHalf;
+				} 
+				if (isAlpha(secondHalf)) {
+					letters = secondHalf;
+				}
+		
+			}
 		}
 		
 		String error = "";
@@ -412,7 +457,7 @@ public class EventRegistrationService {
 				
 		
 	}
-	
+	// helpers
 	public boolean isAlpha (String str) {
 	    char[] chars = str.toCharArray();
 	    for (char c : chars) {
@@ -422,7 +467,7 @@ public class EventRegistrationService {
 	    }
 	    return true;
 	}
-	
+
 	public boolean isInteger (String str) {
 	   try
 	   {
@@ -434,14 +479,29 @@ public class EventRegistrationService {
 	      return false;
 	   }
 	}
-	
-			
-	
-	
-	
 	/*
 	 * ============================
 	 * END PAYMENT SERVICE METHODS
+	 * ============================
+	 */	
+
+	/*
+	 * ============================
+	 * EXTRA SERVICE METHODS
+	 * ============================
+	 */	
+	
+	@Transactional
+	public Circus getCircus(String name) {
+		if (name == null || name.trim().length() == 0) {
+			throw new IllegalArgumentException("Circus name cannot be empty!");
+		}
+		Circus circus = circusRepository.findByName(name);
+		return circus;
+	}
+	/*
+	 * ============================
+	 * END EXTRA SERVICE METHODS
 	 * ============================
 	 */	
 	
@@ -453,4 +513,5 @@ public class EventRegistrationService {
 		}
 		return resultList;
 	}
+
 }
