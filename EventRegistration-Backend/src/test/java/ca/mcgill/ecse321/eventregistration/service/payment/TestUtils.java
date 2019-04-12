@@ -14,7 +14,7 @@ public class TestUtils {
 	public static Person setupPerson(EventRegistrationService service, String name) throws IllegalArgumentException {
 		return service.createPerson(name);
 	}
-
+	
 	public static Event setupEvent(EventRegistrationService service, String name) throws IllegalArgumentException {
 		Calendar c = Calendar.getInstance();
 		c.set(2017, Calendar.MARCH, 16, 9, 0, 0);

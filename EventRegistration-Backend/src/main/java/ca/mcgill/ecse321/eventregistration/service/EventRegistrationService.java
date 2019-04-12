@@ -1,7 +1,5 @@
 package ca.mcgill.ecse321.eventregistration.service;
 
-import static org.mockito.Mockito.after;
-
 import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalTime;
@@ -14,7 +12,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import ca.mcgill.ecse321.eventregistration.dao.*;
 import ca.mcgill.ecse321.eventregistration.model.*;
@@ -32,7 +29,10 @@ public class EventRegistrationService {
 	private PromoterRepository promoterRepository;
 	@Autowired
 	private CircusRepository circusRepository;
-
+	@Autowired
+	private ApplePayRepository applePayRepository;
+	
+	
 	@Transactional
 	public Person createPerson(String name) {
 		if (name == null || name.trim().length() == 0) {
@@ -288,23 +288,36 @@ public class EventRegistrationService {
 	
 	@Transactional
 	public void createCircus(String name, Date circusDate, Time startTime, Time endTime, String company) {
+		String error = "";
 		if (name == null || name.trim().length() == 0) {
-			throw new IllegalArgumentException("Event name cannot be empty!");
+			error = error + "Event name cannot be empty!";
+//			throw new IllegalArgumentException("Event name cannot be empty!");
 		}
 		if (circusDate == null) {
-			throw new IllegalArgumentException("Event date cannot be empty!");
+			error = error + "Event date cannot be empty!";
+//			throw new IllegalArgumentException("Event date cannot be empty!");
 		} 
 		if (startTime == null) {
-			throw new IllegalArgumentException("Event start time cannot be empty!");
+			error = error + "Event start time cannot be empty!";
+//			throw new IllegalArgumentException("Event start time cannot be empty!");
 		}
 		if (endTime == null) {
-			throw new IllegalArgumentException("Event end time cannot be empty!");
-		} else if (endTime.before(startTime)) {
-			throw new IllegalArgumentException("Event end time cannot be before event start time!");
+			error = error + "Event end time cannot be empty!";
+//			throw new IllegalArgumentException("Event end time cannot be empty!");
+		} else if ((endTime.before(startTime))) {
+			error = error + "Event end time cannot be before event start time!";
+//			if (endTime != null && startTime != null && endTime.before(startTime))
+//			throw new IllegalArgumentException("Event end time cannot be before event start time!");
 		}
 		if (company == null || company.trim().length() == 0) {
-			throw new IllegalArgumentException("Circus company cannot be empty!");
-		} 
+			error = error + "Circus company cannot be empty!";
+//			throw new IllegalArgumentException("Circus company cannot be empty!");
+		}
+		
+		error = error.trim();
+		if (error.length() > 0) {
+			throw new IllegalArgumentException(error);
+		}
 		
 		Circus event = new Circus();
 		event.setName(name);
@@ -319,6 +332,118 @@ public class EventRegistrationService {
 	/*
 	 * ============================
 	 * END CIRCUS SERVICE METHODS
+	 * ============================
+	 */	
+	
+	/*
+	 * ============================
+	 * PAYMENT SERVICE METHODS
+	 * ============================
+	 */	
+	@Transactional
+	public ApplePay createApplePay(String id, int amount) {
+		ApplePay applePay = new ApplePay();
+		
+		
+		String[] parts = {};
+		String letters = "";
+		String numbers = "";
+		
+//		while (id!=null) {
+		if (id != null) {
+//			if ((id.contains("")) || id.contains(" ")) {
+//				String fullId = id.trim();
+//				int mid = fullId.length() / 2; 
+//				String newId = fullId.substring(0, mid) + "-" + fullId.substring(mid);
+//				parts = newId.split("-");
+//				numbers = parts[0]; 
+//				letters = parts[1];
+//			}
+			if (id.contains("-")) {
+				parts = id.split("-");
+				numbers = parts[0];
+				letters = parts[1];
+			} 
+		}
+		
+		String error = "";
+	
+		if (id != null) {
+			if (isInteger(numbers) == false || isAlpha(letters) == false || parts.length != 2) {
+				error = error + "Device id is null or has wrong format!";
+			} 
+		} else if (id == null || id.trim().length() == 0) {
+			error = error + "Device id is null or has wrong format!";
+		}
+		
+		if (amount < 0) {
+			error = error + "Payment amount cannot be negative!";
+		}
+		
+		error = error.trim();
+		if (error.length() > 0) {
+			throw new IllegalArgumentException(error);
+		}
+		
+		applePay.setDeviceID(id);
+		applePay.setAmount(amount);
+	
+		applePayRepository.save(applePay);
+
+		return applePay;
+	}
+	
+	@Transactional 
+	public void pay(Registration registration, ApplePay applePay) {
+		String error = "";
+		
+		if (registration == null || applePay == null) {
+			error = error + "Registration and payment cannot be null!";
+		}
+		
+		error = error.trim();
+		if (error.length() > 0) {
+			throw new IllegalArgumentException(error);
+		}
+		
+		registration.setApplePay(applePay);
+		registrationRepository.save(registration);
+		
+		
+//		person.setName(registration.getPerson().getName());
+		
+		
+	}
+	
+	public boolean isAlpha (String str) {
+	    char[] chars = str.toCharArray();
+	    for (char c : chars) {
+	        if (!Character.isLetter(c)) {
+	            return false;
+	        }
+	    }
+	    return true;
+	}
+	
+	public boolean isInteger (String str) {
+	   try
+	   {
+	      Integer.parseInt (str);
+	      return true;
+	   }
+	   catch (Exception e)
+	   {
+	      return false;
+	   }
+	}
+	
+			
+	
+	
+	
+	/*
+	 * ============================
+	 * END PAYMENT SERVICE METHODS
 	 * ============================
 	 */	
 	

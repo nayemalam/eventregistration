@@ -23,9 +23,8 @@ public class Circus extends Event {
 	public void setCompany(String company) {
 		this.company = company;
 	}
-
+	
 	public String getCompany() {
 		return this.company;
-	}
-	
+	}	
 }

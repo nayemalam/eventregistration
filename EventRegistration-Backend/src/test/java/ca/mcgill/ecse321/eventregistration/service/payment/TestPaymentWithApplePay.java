@@ -40,7 +40,7 @@ public class TestPaymentWithApplePay {
 
 	@After
 	public void clearDatabase() {
-		// Fisrt, we clear registrations to avoid exceptions due to inconsistencies
+		// First, we clear registrations to avoid exceptions due to inconsistencies
 		registrationRepository.deleteAll();
 		// Then we can clear the other tables
 		personRepository.deleteAll();
@@ -65,7 +65,7 @@ public class TestPaymentWithApplePay {
 			fail();
 		}
 	}
-
+	
 	@Test
 	public void test_04_testMultiplePaysBreakNegative() {
 		int breakIndex = TestPaymentWithApplePayData.TEST04_BREAK_INDEX;

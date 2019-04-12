@@ -3,6 +3,7 @@ package ca.mcgill.ecse321.eventregistration.model;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 @Entity
 public class Registration {
@@ -39,18 +40,16 @@ public class Registration {
 	public void setEvent(Event event) {
 		this.event = event;
 	}
-	
-//	private Promoter promoter;
-//	
-//	@ManyToOne(optional = false)
-//	public Promoter getPromoter () {
-//		return this.promoter;
-//	}
-//	
-//	public void setPromoter (Promoter promoter) {
-//		this.promoter = promoter;
-//	}
 
+	private ApplePay applePay;
 	
-
+	public void setApplePay(ApplePay applePay) {
+		this.applePay = applePay;
+	}
+	
+	@OneToOne(optional = true)
+	public ApplePay getApplePay() {
+		return this.applePay;
+	}
+	
 }
