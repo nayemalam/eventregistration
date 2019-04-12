@@ -287,7 +287,7 @@ public class EventRegistrationService {
 	}
 	
 	@Transactional
-	public void createCircus(String name, Date circusDate, Time startTime, Time endTime, String company) {
+	public Circus createCircus(String name, Date circusDate, Time startTime, Time endTime, String company) {
 		String error = "";
 		if (name == null || name.trim().length() == 0) {
 			error = error + "Event name cannot be empty!";
@@ -327,6 +327,7 @@ public class EventRegistrationService {
 		event.setCompany(company);
 		
 		circusRepository.save(event);
+		return event;
 	}
 	
 	/*
@@ -408,10 +409,7 @@ public class EventRegistrationService {
 		
 		registration.setApplePay(applePay);
 		registrationRepository.save(registration);
-		
-		
-//		person.setName(registration.getPerson().getName());
-		
+				
 		
 	}
 	

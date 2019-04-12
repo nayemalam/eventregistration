@@ -51,6 +51,16 @@ public class EventRegistrationRestController {
 		Event event = service.createEvent(name, date, Time.valueOf(startTime), Time.valueOf(endTime));
 		return convertToDto(event);
 	}
+	
+	@PostMapping(value = { "/circus/{name}", "/circus/{name}/" })
+	public CircusDto createCircus(@PathVariable("name") String name, @RequestParam Date date,
+			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME, pattern = "HH:mm") LocalTime startTime,
+			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME, pattern = "HH:mm") LocalTime endTime, @RequestParam String company)
+			throws IllegalArgumentException {
+		// @formatter:on
+		Circus circus = service.createCircus(name, date, Time.valueOf(startTime), Time.valueOf(endTime), company);
+		return convertToDto(circus);
+	}
 
 	// @formatter:off
 	@PostMapping(value = { "/register", "/register/" })
@@ -75,6 +85,15 @@ public class EventRegistrationRestController {
 			eventDtos.add(convertToDto(event));
 		}
 		return eventDtos;
+	}
+	
+	@GetMapping(value = { "/circus", "/circus/" })
+	public List<CircusDto> getAllCircuses() {
+		List<CircusDto> circusDtos = new ArrayList<>();
+		for (Circus circus : service.getAllCircuses()) {
+			circusDtos.add(convertToDto(circus));
+		}
+		return circusDtos;
 	}
 
 	// Example REST call:
@@ -131,6 +150,14 @@ public class EventRegistrationRestController {
 			throw new IllegalArgumentException("There is no such Event!");
 		}
 		EventDto eventDto = new EventDto(e.getName(), e.getDate(), e.getStartTime(), e.getEndTime());
+		return eventDto;
+	}
+	
+	private CircusDto convertToDto(Circus e) {
+		if (e == null) {
+			throw new IllegalArgumentException("There is no such Circus!");
+		}
+		CircusDto eventDto = new CircusDto(e.getName(), e.getDate(), e.getStartTime(), e.getEndTime(), e.getCompany());
 		return eventDto;
 	}
 
