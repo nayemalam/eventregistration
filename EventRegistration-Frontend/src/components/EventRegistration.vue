@@ -1,7 +1,7 @@
 <template>
   <div id="eventregistration">
     <h2>Persons</h2>
-    <table id="persons_table">
+    <table id="persons-table">
       <tr>
         <th>Name</th>
         <th>Events</th>
@@ -17,22 +17,21 @@
             </li>
           </ul>
         </td>
-        <td></td>
-        <td></td>
+        <td>{{person.deviceId}}</td>
+        <td>{{person.amount}}</td>
       </tr>
       <tr>
         <td>
-          <input id="create_person_person_name" type="text" v-model="newPerson" placeholder="Person Name">
+          <input id="create-person-person-name" type="text" v-model="newPerson" placeholder="Person Name">
         </td>
         <td>
-          <select id='registration-person-select' v-model="selectedPerson">
-            <option v-bind:active="!newPerson" value="">Person</option>
-            <option v-bind:active="!newPromoter">Promoter</option>
-
+          <select id='create-person-person-type' v-model="personType">
+            <option value="Person">Person</option>
+            <option value="Promoter">Promoter</option>
           </select>
         </td>
         <td>
-          <button id="create_person_button" v-bind:disabled="!newPerson" @click="createPerson(personType, newPerson)">Create Person</button>
+          <button id="create-person-button" v-bind:disabled="!newPerson" @click="createPerson(personType, newPerson)">Create Person</button>
         </td>
        
       </tr>
@@ -47,12 +46,14 @@
         <th>Date</th>
         <th>Start</th>
         <th>End</th>
+        <th>Company</th>
       </tr>
       <tr v-for="(event, i) in events" v-bind:id="event.name" v-bind:key="`event-${i}`">
         <td v-bind:id="`${event.name.replace(/\s/g, '_')}-name`">{{event.name}}</td>
         <td v-bind:id="`${event.name.replace(/\s/g, '_')}-date`">{{event.date}}</td>
         <td v-bind:id="`${event.name.replace(/\s/g, '_')}-starttime`">{{event.startTime}}</td>
         <td v-bind:id="`${event.name.replace(/\s/g, '_')}-endtime`">{{event.endTime}}</td>
+        <td v-bind:id="`${event.name.replace(/\s/g, '_')}-company`">{{event.company}}</td>
       </tr>
       <tr>
         <td>
@@ -67,6 +68,12 @@
         <td>
           <input id="event-endtime-input" type="time" v-model="newEvent.endTime" placeholder="HH:mm">
         </td>
+        <td>
+          <input id="event-company-input" type="text" v-model="newEvent.company" placeholder="Company Name">
+        </td>
+        <!-- <td v-if="seen">
+          <input id="Circus-1-company" type="text" v-model="newEvent.company" placeholder="Company Name">
+        </td> -->
         <td>
           <button id="event-create-button" v-bind:disabled="!newEvent.name" v-on:click="createEvent(newEvent)">Create</button>
         </td>
@@ -95,46 +102,45 @@
     <label>Promoter:
       <select id='assign-selected-promoter' v-model="selectedPromoter">
         <option disabled value="">Please select one</option>
-        <option v-for="(promoter, i) in promoters" v-bind:key="`promoter-${i}`">{{promoter.name}}</option>
+        <option v-for="(promoter, i) in promoters" v-bind:key="`person-${i}`">{{promoter.name}}</option>
       </select>
     </label>
     <label>Event:
-      <select id='assign-selected-event-promoter' v-model="selectedEvent">
+      <select id='assign-selected-event-promoter' v-model="selectedEventPromoter">
         <option disabled value="">Please select one</option>
         <option v-for="(event, i) in events" v-bind:key="`event-${i}`">{{event.name}}</option>
       </select>
     </label>
-    <button id='assign-button-promoter' v-bind:disabled="!selectedPromoter || !selectedEvent" @click="assignEvent(selectedPromoter, selectedEvent)">Assign</button>
+    <button id='assign-button-promoter' v-bind:disabled="!selectedPromoter || !selectedEventPromoter" @click="assignEvent(selectedPromoter, selectedEventPromoter)">Assign</button>
     <br/>
     <span v-if="errorAssignation" style="color:red">Error: {{errorAssignation}}</span>
     <hr>
+
+
     <h2>Pay for Registration with ApplePay</h2>
     <label>Person:
-      <select id='assign-selected-promoter' v-model="selectedPromoter">
+      <select id='apple-pay-person-select' v-model="selectedPersonPay">
         <option disabled value="">Please select one</option>
-        <option v-for="(promoter, i) in promoters" v-bind:key="`promoter-${i}`">{{promoter.name}}</option>
+        <option v-for="(person, i) in persons" v-bind:key="`person-${i}`">{{person.name}}</option>
       </select>
     </label>
     <label>Event:
-      <select id='assign-selected-event-promoter' v-model="selectedEvent">
+      <select id='apple-pay-event-select' v-model="selectedEventPay">
         <option disabled value="">Please select one</option>
         <option v-for="(event, i) in events" v-bind:key="`event-${i}`">{{event.name}}</option>
       </select>
     </label>
     <br/>
     <label>Device Id:
-      <input id="event-name-input" type="text" v-model="newEvent.name" placeholder="ex. 1234-ABCD">
+      <input id="apple-pay-id-input" type="text" v-model="newEvent.deviceId" placeholder="ex. 1234-ABCD">
     </label>
      <label>Amount:
-      <select id='assign-selected-event-promoter' v-model="selectedEvent">
-        <!-- <option disabled value="">Please select one</option> -->
-        <option v-for="(event, i) in events" v-bind:key="`event-${i}`">{{event.name}}</option>
-      </select>
+       <input id="apple-pay-amount-input" type="number" v-model="newEvent.amount">
     </label>
     <br/>
-    <button id='assign-button-promoter' v-bind:disabled="!selectedPromoter || !selectedEvent" @click="assignEvent(selectedPromoter, selectedEvent)">Make Payment</button>
+    <button id='apple-pay-button' v-bind:disabled="!selectedPersonPay || !selectedEventPay" @click="payEvent(selectedPersonPay, selectedEventPay)">Make Payment</button>
     <br/>
-    <span v-if="errorAssignation" style="color:red">Error: {{errorAssignation}}</span>
+    <span id="apple-pay-error" v-if="errorAssignation" style="color:red">Error: {{errorAssignation}}</span> 
   </div>
 </template>
 
