@@ -59,7 +59,7 @@ public class EventRegistrationRestController {
 		return convertToDto(event);
 	}
 	
-	@PostMapping(value = { "/circus/{name}", "/circus/{name}/" })
+	@PostMapping(value = { "/events/circus/{name}", "/events/circus/{name}/" })
 	public CircusDto createCircus(@PathVariable("name") String name, @RequestParam Date date,
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME, pattern = "HH:mm") LocalTime startTime,
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME, pattern = "HH:mm") LocalTime endTime, @RequestParam String company)
@@ -96,6 +96,11 @@ public class EventRegistrationRestController {
 		return convertToDto(r, p, e);
 	}
 	
+	@PostMapping(value = { "/applepay/{deviceId}", "/applepay/{deviceId}/" })
+	public ApplePayDto createApplePay(@PathVariable("deviceId") String deviceId, @RequestParam int amount) throws IllegalArgumentException {
+		ApplePay applePay = service.createApplePay(deviceId, amount);
+		return convertToDto(applePay);
+	}	
 
 	// GET Mappings
 
@@ -106,9 +111,9 @@ public class EventRegistrationRestController {
 			eventDtos.add(convertToDto(event));
 		}
 		return eventDtos;
-	}
+	} 
 	
-	@GetMapping(value = { "/circus", "/circus/" })
+	@GetMapping(value = { "/events/circus", "/events/circus/" })
 	public List<CircusDto> getAllCircuses() {
 		List<CircusDto> circusDtos = new ArrayList<>();
 		for (Circus circus : service.getAllCircuses()) {
@@ -197,9 +202,22 @@ public class EventRegistrationRestController {
 		return convertToDto(service.getEvent(name));
 	}
 	
+	@GetMapping(value = { "/applepay/{deviceId}", "/applepay/{deviceId}/" })
+	public ApplePayDto getApplePayById(@PathVariable("deviceId") String deviceId) throws IllegalArgumentException {
+		return convertToDto(service.getApplePay(deviceId));
+	}
+	
+	@GetMapping(value = { "/applepay", "/applepay/" })
+	public List<ApplePayDto> getAllPayments() {
+		List<ApplePayDto> applePays = new ArrayList<>();
+		for (ApplePay applePay : service.getAllPayments()) {
+			applePays.add(convertToDto(applePay));
+		}
+		return applePays;
+	}
 
 	// Model - DTO conversion methods (not part of the API)
-
+	
 	private EventDto convertToDto(Event e) {
 		if (e == null) {
 			throw new IllegalArgumentException("There is no such Event!");
@@ -234,6 +252,15 @@ public class EventRegistrationRestController {
 		personDto.setEventsAttended(createAttendedEventDtosForPerson(p));
 		return personDto;
 	}
+	
+	private ApplePayDto convertToDto(ApplePay a) {
+		if (a == null) {
+			throw new IllegalArgumentException("There is no such Payment!");
+		}
+		ApplePayDto applePayDto = new ApplePayDto(a.getDeviceID(), a.getAmount());
+		return applePayDto;
+	}
+	
 
 	// DTOs for registrations
 	private RegistrationDto convertToDto(Registration r, Person p, Event e) {
@@ -241,7 +268,6 @@ public class EventRegistrationRestController {
 		PersonDto pDto = convertToDto(p);
 		return new RegistrationDto(pDto, eDto);
 	}
-	
 
 	private RegistrationDto convertToDto(Registration r) {
 		EventDto eDto = convertToDto(r.getEvent());
@@ -250,7 +276,7 @@ public class EventRegistrationRestController {
 		return rDto;
 	}
 
-	// return registration dto without peron object so that we are not repeating
+	// return registration dto without person object so that we are not repeating
 	// data
 	private RegistrationDto convertToDtoWithoutPerson(Registration r) {
 		RegistrationDto rDto = convertToDto(r);
@@ -267,6 +293,9 @@ public class EventRegistrationRestController {
 		}
 		return null;
 	}
+
+	
+	
 
 	// Other extracted methods (not part of the API)
 	

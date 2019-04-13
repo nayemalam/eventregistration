@@ -101,7 +101,7 @@ public class EventRegistrationService {
 		eventRepository.save(event);
 		return event;
 	}
-
+	
 	@Transactional
 	public Event getEvent(String name) {
 		if (name == null || name.trim().length() == 0) {
@@ -354,6 +354,9 @@ public class EventRegistrationService {
 			error = error + "Circus company cannot be empty!";
 //			throw new IllegalArgumentException("Circus company cannot be empty!");
 		}
+		if(eventRepository.findByName(name) != null) {
+			error = error + "Event already exists!";
+		}
 		
 		error = error.trim();
 		if (error.length() > 0) {
@@ -453,10 +456,23 @@ public class EventRegistrationService {
 		}
 		
 		registration.setApplePay(applePay);
-		registrationRepository.save(registration);
-				
-		
+		registrationRepository.save(registration);	
 	}
+	
+	@Transactional
+	public ApplePay getApplePay(String deviceId) {
+		if (deviceId == null || deviceId.trim().length() == 0) {
+			throw new IllegalArgumentException("deviceId cannot be empty!");
+		}
+		ApplePay id = applePayRepository.findByDeviceID(deviceId);
+		return id;
+	}
+	
+	@Transactional
+	public List<ApplePay> getAllPayments() {
+		return toList(applePayRepository.findAll());
+	}
+	
 	// helpers
 	public boolean isAlpha (String str) {
 	    char[] chars = str.toCharArray();
