@@ -12,8 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import ca.mcgill.ecse321.eventregistration.dao.*;
-import ca.mcgill.ecse321.eventregistration.model.*;
+import ca.mcgill.ecse321.eventregistration.dao.EventRepository;
+import ca.mcgill.ecse321.eventregistration.dao.PersonRepository;
+import ca.mcgill.ecse321.eventregistration.dao.PromoterRepository;
+import ca.mcgill.ecse321.eventregistration.dao.RegistrationRepository;
+import ca.mcgill.ecse321.eventregistration.model.Event;
+import ca.mcgill.ecse321.eventregistration.model.Promoter;
 import ca.mcgill.ecse321.eventregistration.service.EventRegistrationService;
 
 @RunWith(SpringRunner.class)

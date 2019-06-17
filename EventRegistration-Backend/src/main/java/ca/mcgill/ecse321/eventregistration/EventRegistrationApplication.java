@@ -1,12 +1,20 @@
 package ca.mcgill.ecse321.eventregistration;
 
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @RestController
 @SpringBootApplication
+@EnableSwagger2
 public class EventRegistrationApplication {
 
 	public static void main(String[] args) {
@@ -18,4 +26,10 @@ public class EventRegistrationApplication {
 		return "ECSE321 Event Registration Application - Backend base URL.\n"
 				+ "Use the API methods to interact with the backend! \n Testing123";
 	}
+	
+	@Bean
+	public Docket api() {
+		return new Docket(DocumentationType.SWAGGER_2).select().apis(RequestHandlerSelectors.any()).paths(PathSelectors.regex("/EventRegistrationRestController.*")).build();
+	}
+   
 }

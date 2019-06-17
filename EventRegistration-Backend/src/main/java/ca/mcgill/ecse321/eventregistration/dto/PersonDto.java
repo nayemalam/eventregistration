@@ -7,6 +7,7 @@ public class PersonDto {
 
 	private String name;
 	private List<EventDto> eventsAttended;
+	private List<ApplePayDto> applePaid;
 
 	public PersonDto() {
 	}
@@ -31,5 +32,13 @@ public class PersonDto {
 
 	public void setEventsAttended(List<EventDto> events) {
 		this.eventsAttended = events;
+	}
+	
+	public List<ApplePayDto> getPaid() {
+		return applePaid;
+	}
+
+	public void setApplePaid(List<ApplePayDto> applePay) {
+		this.applePaid = applePay;
 	}
 }

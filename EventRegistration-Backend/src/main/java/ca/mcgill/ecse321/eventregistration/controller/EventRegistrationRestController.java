@@ -12,14 +12,27 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ca.mcgill.ecse321.eventregistration.model.*;
-import ca.mcgill.ecse321.eventregistration.dto.*;
+
+import ca.mcgill.ecse321.eventregistration.dto.ApplePayDto;
+import ca.mcgill.ecse321.eventregistration.dto.CircusDto;
+import ca.mcgill.ecse321.eventregistration.dto.EventDto;
+import ca.mcgill.ecse321.eventregistration.dto.PersonDto;
+import ca.mcgill.ecse321.eventregistration.dto.PromoterDto;
+import ca.mcgill.ecse321.eventregistration.dto.RegistrationDto;
+import ca.mcgill.ecse321.eventregistration.model.ApplePay;
+import ca.mcgill.ecse321.eventregistration.model.Circus;
+import ca.mcgill.ecse321.eventregistration.model.Event;
+import ca.mcgill.ecse321.eventregistration.model.Person;
+import ca.mcgill.ecse321.eventregistration.model.Promoter;
+import ca.mcgill.ecse321.eventregistration.model.Registration;
 import ca.mcgill.ecse321.eventregistration.service.EventRegistrationService;
 
 @CrossOrigin(origins = "*")
 @RestController
+@RequestMapping("/EventRegistrationRestController")
 public class EventRegistrationRestController {
 
 	@Autowired
@@ -250,6 +263,7 @@ public class EventRegistrationRestController {
 		}
 		PersonDto personDto = new PersonDto(p.getName());
 		personDto.setEventsAttended(createAttendedEventDtosForPerson(p));
+		
 		return personDto;
 	}
 	
@@ -324,6 +338,15 @@ public class EventRegistrationRestController {
 			events.add(convertToDto(event));
 		}
 		return events;
+	}
+	
+	private List<ApplePayDto> createApplePaidDtosForPerson(Person p) {
+		List<ApplePay> paidForPerson = service.getPaidByPerson(p);
+		List<ApplePayDto> payments = new ArrayList<>();
+		for (ApplePay payment : paidForPerson) {
+			payments.add(convertToDto(payment));
+		}
+		return payments;
 	}
 
 	private List<RegistrationDto> createRegistrationDtosForPerson(Person p) {

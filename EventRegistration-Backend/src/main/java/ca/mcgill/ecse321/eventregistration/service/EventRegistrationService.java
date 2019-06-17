@@ -2,7 +2,6 @@ package ca.mcgill.ecse321.eventregistration.service;
 
 import java.sql.Date;
 import java.sql.Time;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -13,8 +12,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import ca.mcgill.ecse321.eventregistration.dao.*;
-import ca.mcgill.ecse321.eventregistration.model.*;
+import ca.mcgill.ecse321.eventregistration.dao.ApplePayRepository;
+import ca.mcgill.ecse321.eventregistration.dao.CircusRepository;
+import ca.mcgill.ecse321.eventregistration.dao.EventRepository;
+import ca.mcgill.ecse321.eventregistration.dao.PersonRepository;
+import ca.mcgill.ecse321.eventregistration.dao.PromoterRepository;
+import ca.mcgill.ecse321.eventregistration.dao.RegistrationRepository;
+import ca.mcgill.ecse321.eventregistration.model.ApplePay;
+import ca.mcgill.ecse321.eventregistration.model.Circus;
+import ca.mcgill.ecse321.eventregistration.model.Event;
+import ca.mcgill.ecse321.eventregistration.model.Person;
+import ca.mcgill.ecse321.eventregistration.model.Promoter;
+import ca.mcgill.ecse321.eventregistration.model.Registration;
 
 @Service
 public class EventRegistrationService {
@@ -186,6 +195,18 @@ public class EventRegistrationService {
 			eventsAttendedByPerson.add(r.getEvent());
 		}
 		return eventsAttendedByPerson;
+	}
+	
+	@Transactional
+	public List<ApplePay> getPaidByPerson(Person person) {
+		if (person == null) {
+			throw new IllegalArgumentException("Person cannot be null!");
+		}
+		List<ApplePay> paidByPerson = new ArrayList<>();
+		for (Registration r : registrationRepository.findByPerson(person)) {
+			paidByPerson.add(r.getApplePay());
+		}
+		return paidByPerson;
 	}
 	
 	// start implementation of service methods

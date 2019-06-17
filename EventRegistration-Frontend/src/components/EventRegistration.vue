@@ -17,8 +17,12 @@
             </li>
           </ul>
         </td>
-        <td>{{person.deviceId}}</td>
-        <td>{{person.amount}}</td>
+        <td v-for="(id, i) in paid" v-bind:key="`id-${i}`">
+          <span>{{id.deviceId}}</span>
+        </td>
+        <td v-for="(pay, i) in paid" v-bind:key="`pay-${i}`">
+          <span>{{pay.amount}}</span>
+        </td>
       </tr>
       <tr>
         <td>
@@ -81,6 +85,7 @@
     </table>
     <span id="event-error" v-if="errorEvent" style="color:red">Error: {{errorEvent}}</span>
     <hr>
+
     <h2>Registrations</h2>
     <label>Person:
       <select id='registration-person-select' v-model="selectedPerson">
@@ -98,6 +103,7 @@
     <br/>
     <span v-if="errorRegistration" style="color:red">Error: {{errorRegistration}}</span>
     <hr>
+
     <h2>Assign Promoters</h2>
     <label>Promoter:
       <select id='assign-selected-promoter' v-model="selectedPromoter">
@@ -132,13 +138,13 @@
     </label>
     <br/>
     <label>Device Id:
-      <input id="apple-pay-id-input" type="text" v-model="newEvent.deviceId" placeholder="ex. 1234-ABCD">
+      <input id="apple-pay-id-input" type="text" v-model="newId" placeholder="ex. 1234-ABCD">
     </label>
      <label>Amount:
-       <input id="apple-pay-amount-input" type="number" v-model="newEvent.amount">
+       <input id="apple-pay-amount-input" type="number" v-model="newAmount" placeholder="$">
     </label>
     <br/>
-    <button id='apple-pay-button' v-bind:disabled="!selectedPersonPay || !selectedEventPay" @click="payEvent(selectedPersonPay, selectedEventPay)">Make Payment</button>
+    <button id='apple-pay-button' v-bind:disabled="!selectedPersonPay || !selectedEventPay" @click="payEvent(newId, newAmount)">Make Payment</button>
     <br/>
     <span id="apple-pay-error" v-if="errorAssignation" style="color:red">Error: {{errorAssignation}}</span> 
   </div>

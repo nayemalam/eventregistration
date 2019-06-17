@@ -5,7 +5,7 @@ import java.sql.Time;
 import java.time.LocalTime;
 import java.util.Calendar;
 
-import ca.mcgill.ecse321.eventregistration.model.*;
+import ca.mcgill.ecse321.eventregistration.model.Event;
 import ca.mcgill.ecse321.eventregistration.service.EventRegistrationService;
 
 public class PromoterRoleTestData {

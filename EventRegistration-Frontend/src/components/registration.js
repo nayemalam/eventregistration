@@ -39,11 +39,20 @@ export default {
         endTime: '11:00',
         company: ''
       },
+      payments: [],
+      newId: '',
+      newAmount: '',
+      newPayment: '',
       selectedPerson: '',
       selectedPromoter: '',
       selectedPersonPay: '',
       selectedEventPay: '',
-      selectedEvent: '',
+      selectedEvent: {
+        name: '',
+        event: '',
+        deviceId: '',
+        amount: ''
+      },
       selectedEventPromoter: '',
       errorPerson: '',
       errorPromoter: '',
@@ -56,23 +65,27 @@ export default {
   },
   created: function () {
     // Initializing persons
-    AXIOS.get('/persons')
+    AXIOS.get('/EventRegistrationRestController/persons')
     .then(response => {
       this.persons = response.data;
       this.persons.forEach(person => this.getRegistrations(person.name))
     })
     .catch(e => {this.errorPerson = e});
 
-    AXIOS.get('/promoters')
+    AXIOS.get('/EventRegistrationRestController/promoters')
     .then(response => {
       this.promoters = response.data;
       this.promoters.forEach(promoter => this.getAssignations(promoter.name))
     })
     .catch(e => {this.errorPromoter = e});
 
-    AXIOS.get('/events').then(response => {this.events = response.data}).catch(e => {this.errorEvent = e});
+    AXIOS.get('/EventRegistrationRestController/events').then(response => {this.events = response.data}).catch(e => {this.errorEvent = e});
 
-
+    AXIOS.get('/EventRegistrationRestController/applepay')
+    .then(response => {
+      this.paid = response.data;
+    })
+    .catch(e => {this.errorPromoter = e});
   },
 
   methods: {
@@ -91,7 +104,7 @@ export default {
 
     createPerson: function (personType, personName) {
       if (personType == "Person") {
-        AXIOS.post('/persons/'.concat(personName), {}, {})
+        AXIOS.post('/EventRegistrationRestController/persons/'.concat(personName), {}, {})
         .then(response => {
           this.persons.push(response.data);
           this.errorPerson = '';
@@ -104,7 +117,7 @@ export default {
         });
       }
       if (personType == "Promoter") {
-        AXIOS.post('/promoters/'.concat(personName), {}, {})
+        AXIOS.post('/EventRegistrationRestController/promoters/'.concat(personName), {}, {})
         .then(response => {
           this.persons.push(response.data);
           this.promoters.push(response.data);
@@ -123,7 +136,7 @@ export default {
     createEvent: function (newEvent) {
       let url = '';
       if (this.newEvent.company) {
-        AXIOS.post('/events/circus/'.concat(newEvent.name), {}, {params: newEvent})
+        AXIOS.post('/EventRegistrationRestController/events/circus/'.concat(newEvent.name), {}, {params: newEvent})
         .then(response => {
           this.events.push(response.data);
           this.errorEvent = '';
@@ -135,7 +148,7 @@ export default {
           console.log(e);
         });
       } else {
-        AXIOS.post('/events/'.concat(newEvent.name), {}, {params: newEvent})
+        AXIOS.post('/EventRegistrationRestController/events/'.concat(newEvent.name), {}, {params: newEvent})
         .then(response => {
           this.events.push(response.data);
           this.errorEvent = '';
@@ -157,7 +170,7 @@ export default {
         event: event.name
       };
 
-      AXIOS.post('/register', {}, {params: params})
+      AXIOS.post('/EventRegistrationRestController/register', {}, {params: params})
       .then(response => {
         person.eventsAttended.push(event)
         this.selectedPerson = '';
@@ -179,7 +192,7 @@ export default {
         event: event.name
       };
 
-      AXIOS.post('/assign', {}, {params: params})
+      AXIOS.post('/EventRegistrationRestController/assign', {}, {params: params})
       .then(response => {
         promoter.eventsAttended.push(event)
         this.selectedPromoter = '';
@@ -195,35 +208,24 @@ export default {
       });
     },
 
-    payEvent: function (personName, eventName) {
-      let event = this.events.find(x => x.name === eventName);
-      let person = this.persons.find(x => x.name === personName);
+    payEvent: function (deviceId, amount) {
       let params = {
-        person: person.name,
-        event: event.name
+        amount: amount
       };
 
-      AXIOS.post('/register', {}, {params: params})
+      AXIOS.post('/EventRegistrationRestController/applepay/'.concat(deviceId), {}, {params: params})
       .then(response => {
-        person.eventsAttended.push(event)
-        this.amount = 12;
-        this.deviceId = '';
-        this.selectedPerson = '';
-        this.selectedEvent = '';
-        this.errorRegistration = '';
+        this.errorPay = '';
       })
       .catch(e => {
         e = e.response.data.message ? e.response.data.message : e;
-        this.errorRegistration = e;
+        this.errorPay = e;
         console.log(e);
       });
     },
 
-
-  
-
     getRegistrations: function (personName) {
-      AXIOS.get('/events/person/'.concat(personName))
+      AXIOS.get('/EventRegistrationRestController/events/person/'.concat(personName))
       .then(response => {
         if (!response.data || response.data.length <= 0) return;
 

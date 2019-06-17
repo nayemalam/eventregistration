@@ -1,7 +1,5 @@
 package ca.mcgill.ecse321.eventregistration.dto;
 
-import java.util.List;
-
 public class ApplePayDto {
 
 	private String deviceId;
